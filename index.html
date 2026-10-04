@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>王骁颜值TOP 9选</title>
+  <title>王骁颜TOP</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -123,7 +123,7 @@
   <section id="start-screen" class="screen active">
     <div class="start-content">
       <div class="title-prefix">王骁</div>
-      <div class="title-cn">颜值TOP</div>
+      <div class="title-cn">颜TOP</div>
       <div class="title-jp">9选</div>
       <button id="start-btn">开始</button>
     </div>
@@ -140,7 +140,7 @@
   <section id="result-screen" class="screen">
     <div class="result-title">
       <div class="result-prefix">王骁</div>
-      <div class="result-cn">颜值TOP</div>
+      <div class="result-cn">颜TOP</div>
       <div class="result-jp">9选</div>
     </div>
     <div id="result-grid"></div>
@@ -255,9 +255,10 @@
   let locked = false;
   let pickCount = {};
 
-  // 终极PK变量
-  let finalCandidatePool = [];
-  let needEliminateCount = 0;
+  // 终极票选轮变量
+  let finalPool = [];
+  let finalMatches = [];
+  let finalMatchIndex = 0;
 
   function shuffle(arr) {
     const a = [...arr];
@@ -334,7 +335,7 @@
     }
     currentGroupIndex = 0;
     roundTitle.textContent = "第三轮";
-    roundSubtitle.textContent = "2对2";
+    roundSubtitle.textContent = "4选2";
     instruction.textContent = "请在每组中选择两张骁";
     showCurrentGroup();
   }
@@ -428,55 +429,59 @@
   function finishCurrentRound() {
     if (roundTitle.textContent === "第一轮") startRound2();
     else if (roundTitle.textContent === "第二轮") startRound3();
-    else if (roundTitle.textContent === "第三轮") {
-      finalCandidatePool = shuffle([...winners]);
-      const totalCandidate = finalCandidatePool.length;
-      needEliminateCount = totalCandidate - 9;
-
-      roundTitle.textContent = "终极淘汰赛";
-      document.getElementById("progress-dots").style.display = "none";
-
-      if(needEliminateCount <= 0){
-        showFinalResult(finalCandidatePool.slice(0,9));
-        return;
-      }
-      roundSubtitle.textContent = `需要淘汰 ${needEliminateCount} 人`;
-      instruction.textContent = "点击你更喜欢的角色，败者直接淘汰";
-      nextPkMatch();
-    }
+    else if (roundTitle.textContent === "第三轮") startFinalRound();
   }
 
-  function nextPkMatch(){
+  // 终极票选轮：不淘汰任何人，两两配对二选一累计票数
+  function startFinalRound() {
+    finalPool = shuffle([...winners]);
+    // 两两配对
+    finalMatches = [];
+    for (let i = 0; i + 1 < finalPool.length; i += 2) {
+      finalMatches.push([finalPool[i], finalPool[i+1]]);
+    }
+    // 奇数最后1人直接+1票（轮空）
+    if (finalPool.length % 2 === 1) {
+      const last = finalPool[finalPool.length - 1];
+      pickCount[last.name] = (pickCount[last.name] || 0) + 1;
+    }
+    finalMatchIndex = 0;
+    roundTitle.textContent = "终极票选";
+    roundSubtitle.textContent = "点击更喜欢的角色，累计票数";
+    instruction.textContent = "每组二选一，最终按票数排序选出TOP9";
+    document.getElementById("progress-dots").style.display = "none";
+    showFinalMatch();
+  }
+
+  function showFinalMatch() {
     groupContainer.innerHTML = "";
     groupContainer.className = "group-compare";
     locked = false;
-    if(needEliminateCount <=0){
-      showFinalResult(finalCandidatePool.slice(0,9));
+    if (finalMatchIndex >= finalMatches.length) {
+      // 打完一轮配对，按总票数降序取前9
+      const sorted = [...finalPool].sort((a,b)=> (pickCount[b.name]||0) - (pickCount[a.name]||0));
+      showFinalResult(sorted.slice(0,9));
       return;
     }
-    const a = finalCandidatePool.shift();
-    const b = finalCandidatePool.shift();
-    const cardA = createCompareCard(a,(winCh)=>handlePkWin(winCh,a,b));
-    const cardB = createCompareCard(b,(winCh)=>handlePkWin(winCh,a,b));
+    const [a, b] = finalMatches[finalMatchIndex];
+    const cardA = createCompareCard(a, (ch)=>handleFinalPick(ch));
+    const cardB = createCompareCard(b, (ch)=>handleFinalPick(ch));
     groupContainer.appendChild(cardA);
     groupContainer.appendChild(cardB);
   }
 
-  function handlePkWin(winner, a, b){
+  function handleFinalPick(winner) {
     locked = true;
-    pickCount[winner.name] = (pickCount[winner.name]||0)+1;
+    pickCount[winner.name] = (pickCount[winner.name]||0) + 1;
     const cards = groupContainer.querySelectorAll(".compare-card");
-    for(let c of cards){
-      const nm = c.querySelector(".character-name").textContent;
-      if(nm === winner.name) c.classList.add("selected");
+    cards.forEach(c=>{
+      if (c.querySelector(".character-name").textContent === winner.name) c.classList.add("selected");
       else c.classList.add("eliminated");
-    }
+    });
     setTimeout(()=>{
-      finalCandidatePool.push(winner);
-      needEliminateCount -=1;
-      roundSubtitle.textContent = `还需淘汰 ${needEliminateCount} 人`;
-      nextPkMatch();
-    },400);
+      finalMatchIndex++;
+      showFinalMatch();
+    }, 400);
   }
 
   function showFinalResult(top9Raw) {
