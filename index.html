@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>王骁颜值TOP 9选</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; min-height: 100%;
+      background: #fff0f3; color: #c2185b;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
+    }
+    body { min-height: 100vh; }
+    .screen { display: none; width: 100%; min-height: 100vh; }
+    .screen.active { display: flex; }
+    /* 首页 */
+    #start-screen { align-items: center; justify-content: center; text-align: center; }
+    .start-content { width: 100%; padding: 30px; }
+    .title-prefix { font-size: clamp(42px,12vw,76px); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .title-cn { font-size: clamp(28px,8vw,48px); font-weight: 700; letter-spacing: 0.08em; }
+    .title-jp { margin-top: 8px; font-size: clamp(20px,5vw,30px); letter-spacing: 0.12em; font-weight: 400; }
+    #start-btn, #again-btn {
+      margin-top: 55px; padding: 14px 42px;
+      border: 2px solid #c2185b; background: #fff; color: #c2185b;
+      font-size: 15px; font-weight: 800; letter-spacing: 0.18em;
+      cursor: pointer; border-radius: 999px; transition: all 0.2s ease;
+    }
+    #start-btn:hover, #again-btn:hover { background: #c2185b; color: #fff; }
+    #start-btn:active, #again-btn:active { opacity: 0.8; }
+    /* 游戏页 */
+    #game-screen { flex-direction: column; align-items: center; padding: 24px 14px 40px; }
+    .game-header { width: 100%; max-width: 900px; text-align: center; }
+    #round-title { font-size: 25px; font-weight: 700; letter-spacing: 0.08em; }
+    #round-subtitle { margin-top: 7px; min-height: 20px; font-size: 13px; color: #e06e9a; }
+    #progress-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
+    #progress-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: #f0c8d4; transition: all 0.25s ease; }
+    #progress-dots .dot.done { background: #c2185b; }
+    #progress-dots .dot.current { background: #c2185b; transform: scale(1.4); }
+    #instruction { margin-top: 25px; margin-bottom: 20px; font-size: 15px; font-weight: 600; text-align: center; }
+    #group-container { width: 100%; max-width: 1000px; display: grid; gap: 14px; align-items: stretch; }
+    .group-grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .group-grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .group-grid-2v2 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    /* 终极二选一大卡片 */
+    .group-compare { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; padding: 10px 0; }
+    .compare-card {
+      position: relative; overflow: hidden; background: #ddd; cursor: pointer;
+      aspect-ratio: 3/4; border-radius: 0; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+    }
+    .compare-card img { width: 100%; height: 100%; display: block; object-fit: cover; border: 3px solid #f4c6d4; border-radius: 0; }
+    .compare-card .character-name {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 3px 4px 5px; color: #fff; font-size: 20px; font-weight: 900;
+      letter-spacing: 1px; text-align: center;
+      background: rgba(244,198,212,0.45); line-height: 1.15;
+      display: flex; align-items: center; justify-content: center; min-height: 26px;
+    }
+    .compare-card.selected { transform: scale(1.02); }
+    .compare-card.eliminated { opacity: 0.18; filter: grayscale(1); transform: scale(0.97); }
+    /* 普通游戏卡片 */
+    .character-card {
+      position: relative; overflow: hidden; background: #ddd; cursor: pointer;
+      aspect-ratio: 3/4; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+    }
+    .character-card img { width: 100%; height: 100%; display: block; object-fit: cover; border: 3px solid #f4c6d4; border-radius: 0; }
+    .character-name {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 3px 4px 5px; color: #fff; font-size: 18px; font-weight: 900;
+      letter-spacing: 1px; text-align: center;
+      background: rgba(244,198,212,0.45); line-height: 1.15;
+      display: flex; align-items: center; justify-content: center; min-height: 24px;
+    }
+    .character-card.selected { transform: scale(1.02); }
+    .character-card.eliminated { opacity: 0.18; filter: grayscale(1); transform: scale(0.97); }
+    /* 结果页 */
+    #result-screen { flex-direction: column; align-items: center; padding: 30px 14px 50px; }
+    .result-title { text-align: center; }
+    .result-prefix { font-size: 34px; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 3px; }
+    .result-cn { font-size: 24px; font-weight: 700; letter-spacing: 0.08em; }
+    .result-jp { margin-top: 5px; font-size: 17px; letter-spacing: 0.12em; }
+    #result-grid { width: 100%; max-width: 900px; margin-top: 35px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+    .result-card { position: relative; overflow: hidden; aspect-ratio: 3/4; background: #ddd; }
+    .result-card img { width: 100%; height: 100%; display: block; object-fit: cover; border: 3px solid #f4c6d4; border-radius: 0; }
+    .result-rank {
+      position: absolute; top: 6px; left: 6px; z-index: 2;
+      width: 22px; height: 22px; line-height: 22px; text-align: center;
+      font-size: 13px; font-weight: 900; color: #c2185b; background: #ffd9e3; border-radius: 4px;
+    }
+    .result-name {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 3px 4px 5px; color: #fff; text-align: center;
+      font-size: 18px; font-weight: 900; letter-spacing: 1px;
+      background: rgba(244,198,212,0.45); line-height: 1.15;
+      display: flex; align-items: center; justify-content: center; min-height: 24px;
+    }
+    .result-count {
+      position: absolute; top: 8px; right: 9px; z-index: 2;
+      font-size: 11px; color: #fff; text-shadow: 0 1px 3px rgba(194,24,91,0.6);
+    }
+    /* 手机适配 */
+    @media (max-width: 600px) {
+      #game-screen { padding: 18px 10px 30px; }
+      #group-container { gap: 8px; }
+      .character-name { font-size: 12px; padding: 2px 3px 4px; min-height: 18px; }
+      #instruction { margin-top: 18px; margin-bottom: 14px; }
+      #result-grid { gap: 7px; }
+      .result-rank { width: 18px; height: 18px; line-height: 18px; font-size: 11px; top: 4px; left: 4px; }
+      .result-name { font-size: 11px; padding: 2px 3px 4px; min-height: 16px; }
+    }
+    .site-watermark {
+      position: fixed; left: 0; right: 0; bottom: 10px; text-align: center;
+      font-size: 15px; color: #c2185b; opacity: 0.55; letter-spacing: 2px;
+      pointer-events: none; user-select: none; z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <section id="start-screen" class="screen active">
+    <div class="start-content">
+      <div class="title-prefix">王骁</div>
+      <div class="title-cn">颜值TOP</div>
+      <div class="title-jp">9选</div>
+      <button id="start-btn">开始</button>
+    </div>
+  </section>
+  <section id="game-screen" class="screen">
+    <div class="game-header">
+      <div id="round-title">ROUND 1</div>
+      <div id="round-subtitle"></div>
+      <div id="progress-dots"></div>
+    </div>
+    <div id="instruction"></div>
+    <div id="group-container"></div>
+  </section>
+  <section id="result-screen" class="screen">
+    <div class="result-title">
+      <div class="result-prefix">王骁</div>
+      <div class="result-cn">颜值TOP</div>
+      <div class="result-jp">9选</div>
+    </div>
+    <div id="result-grid"></div>
+    <button id="again-btn">再来一次</button>
+  </section>
+  <div class="site-watermark">枯崕</div>
+
+  <script>
+  const characterData = [
+    { name: "杨柯", img: "./微信图片_20261004220718_77_35.jpg" },
+    { name: "26金鹰骁", img: "./微信图片_20261004220718_78_35.jpg" },
+    { name: "芭莎骁", img: "./微信图片_20261004220720_79_35.jpg" },
+    { name: "25华表骁", img: "./微信图片_20261004220723_80_35.jpg" },
+    { name: "多伦多骁", img: "./微信图片_20261004220723_81_35.jpg" },
+    { name: "26百花骁", img: "./微信图片_20261004220724_82_35.jpg" },
+    { name: "湖光嘉年华骁", img: "./微信图片_20261004220725_83_35.jpg" },
+    { name: "25微博电影之夜骁", img: "./微信图片_20261004220728_84_35.jpg" },
+    { name: "张一昂", img: "./微信图片_20261004220729_85_35.jpg" },
+    { name: "程恳", img: "./微信图片_20261004220729_86_35.jpg" },
+    { name: "雷星星", img: "./微信图片_20261004220730_87_35.jpg" },
+    { name: "风度骁", img: "./微信图片_20261004220731_88_35.jpg" },
+    { name: "大众骁", img: "./微信图片_20261004220732_89_35.jpg" },
+    { name: "25白玉兰骁2", img: "./微信图片_20261004220733_90_35.jpg" },
+    { name: "老金", img: "./微信图片_20261004220733_91_35.jpg" },
+    { name: "卡萨帝骁", img: "./微信图片_20261004220734_92_35.jpg" },
+    { name: "卡萨帝线下骁", img: "./微信图片_20261004220735_93_35.jpg" },
+    { name: "老肖", img: "./微信图片_20261004220736_94_35.jpg" },
+    { name: "24爱奇艺尖叫之夜骁", img: "./微信图片_20261004220737_95_35.jpg" },
+    { name: "24金鸡骁", img: "./微信图片_20261004220738_96_35.jpg" },
+    { name: "25白玉兰骁1", img: "./微信图片_20261004220740_97_35.jpg" },
+    { name: "23白玉兰骁", img: "./微信图片_20261005032256_98_35.jpg" },
+    { name: "24微博电影之夜骁", img: "./微信图片_20261005032257_99_35.jpg" },
+    { name: "24上影节骁", img: "./微信图片_20261005032258_100_35.jpg" },
+    { name: "24金鹰骁", img: "./微信图片_20261005032259_101_35.jpg" },
+    { name: "24抖音电影奇遇夜骁", img: "./微信图片_20261005032300_102_35.jpg" },
+    { name: "马立武", img: "./微信图片_20261005032402_103_35.jpg" },
+    { name: "刘继东", img: "./微信图片_20261005032403_104_35.jpg" },
+    { name: "赵荣生", img: "./微信图片_20261005032404_105_35.jpg" },
+    { name: "阿宾", img: "./微信图片_20261005032405_106_35.jpg" },
+    { name: "民警", img: "./微信图片_20261005032406_107_35.jpg" },
+    { name: "司命星君", img: "./微信图片_20261005032407_108_35.jpg" },
+    { name: "欧阳", img: "./微信图片_20261005032613_109_35.jpg" },
+    { name: "林浩", img: "./微信图片_20261005032628_110_35.jpg" },
+    { name: "简肇兴", img: "./微信图片_20261005032628_111_35.jpg" },
+    { name: "律师", img: "./微信图片_20261005032630_112_35.jpg" },
+    { name: "钟杨", img: "./微信图片_20261005032631_113_35.jpg" },
+    { name: "蓝天", img: "./微信图片_20261005032632_114_35.jpg" },
+    { name: "苗彻", img: "./微信图片_20261005032634_115_35.jpg" },
+    { name: "崔伟", img: "./微信图片_20261005032643_116_35.jpg" },
+    { name: "安军", img: "./微信图片_20261005032644_117_35.jpg" },
+    { name: "杨志飞", img: "./微信图片_20261005032645_118_35.jpg" },
+    { name: "田宇", img: "./微信图片_20261005032713_119_35.jpg" },
+    { name: "老抠", img: "./微信图片_20261005032714_120_35.jpg" },
+    { name: "那伟", img: "./微信图片_20261005032715_121_35.jpg" },
+    { name: "细虫", img: "./微信图片_20261005032716_122_35.jpg" },
+    { name: "曲振祥", img: "./微信图片_20261005032717_123_35.jpg" },
+    { name: "马振坤", img: "./微信图片_20261005032718_124_35.jpg" },
+    { name: "梁兴初", img: "./微信图片_20261005032719_125_35.jpg" },
+    { name: "周美仁", img: "./微信图片_20261005032719_126_35.jpg" },
+    { name: "乔胜利", img: "./微信图片_20261005032720_127_35.jpg" },
+    { name: "崔先生", img: "./微信图片_20261005032722_128_35.jpg" },
+    { name: "草莓张叔平", img: "./微信图片_20261005032723_129_35.jpg" },
+    { name: "芝士张叔平", img: "./微信图片_20261005032724_130_35.jpg" },
+    { name: "糜冲", img: "./微信图片_20261005032724_131_35.jpg" },
+    { name: "廖振华", img: "./微信图片_20261005032725_132_35.jpg" },
+    { name: "马杰", img: "./微信图片_20261005032726_133_35.jpg" },
+    { name: "陆杰", img: "./微信图片_20261005032727_134_35.jpg" },
+    { name: "孙廷远", img: "./微信图片_20261005032728_135_35.jpg" },
+    { name: "宗向方", img: "./微信图片_20261005032729_136_35.jpg" },
+    { name: "秦朗", img: "./微信图片_20261005032732_137_35.jpg" },
+    { name: "老五", img: "./微信图片_20261005032733_138_35.jpg" },
+    { name: "弗朗西斯", img: "./微信图片_20261005032734_139_35.jpg" },
+    { name: "霍连凯", img: "./微信图片_20261005032741_140_35.jpg" },
+    { name: "陈硕", img: "./微信图片_20261005032744_141_35.jpg" },
+    { name: "曹俊", img: "./微信图片_20261005032749_142_35.jpg" },
+    { name: "于安冬", img: "./微信图片_20261005032750_143_35.jpg" },
+    { name: "林楠", img: "./微信图片_20261005032751_144_35.jpg" },
+    { name: "沈广顺", img: "./微信图片_20261005032759_145_35.jpg" },
+    { name: "弗兰克", img: "./微信图片_20261005032800_146_35.jpg" },
+    { name: "白孝武", img: "./微信图片_20261005032801_147_35.jpg" },
+    { name: "21杨健", img: "./微信图片_20261005032803_148_35.jpg" },
+    { name: "06杨健", img: "./微信图片_20261005032804_149_35.jpg" },
+    { name: "雷一斐", img: "./微信图片_20261005032807_150_35.jpg" },
+    { name: "谢创", img: "./微信图片_20261005032819_151_35.jpg" },
+    { name: "李彦", img: "./微信图片_20261005032821_152_35.jpg" },
+    { name: "程雷", img: "./微信图片_20261005032824_153_35.jpg" },
+    { name: "孙志军", img: "./微信图片_20261005032825_154_35.jpg" },
+    { name: "路远", img: "./微信图片_20261005032826_155_35.jpg" },
+    { name: "赵磊", img: "./微信图片_20261005032834_156_35.jpg" },
+    { name: "地瓜", img: "./微信图片_20261005032835_157_35.jpg" },
+    { name: "孙诺", img: "./微信图片_20261005032836_158_35.jpg" },
+    { name: "冬子", img: "./微信图片_20261005032837_159_35.jpg" },
+    { name: "赵鞅", img: "./微信图片_20261005032838_160_35.jpg" }
+  ];
+
+  const characters = characterData.map(item => ({ name: item.name, img: item.img }));
+  const startScreen    = document.getElementById("start-screen");
+  const gameScreen     = document.getElementById("game-screen");
+  const resultScreen   = document.getElementById("result-screen");
+  const startBtn       = document.getElementById("start-btn");
+  const againBtn       = document.getElementById("again-btn");
+  const roundTitle     = document.getElementById("round-title");
+  const roundSubtitle  = document.getElementById("round-subtitle");
+  const instruction    = document.getElementById("instruction");
+  const groupContainer = document.getElementById("group-container");
+  const resultGrid     = document.getElementById("result-grid");
+
+  let players = [];
+  let winners = [];
+  let currentGroups = [];
+  let currentGroupIndex = 0;
+  let locked = false;
+  let pickCount = {};
+
+  // 终极PK变量
+  let finalCandidatePool = [];
+  let needEliminateCount = 0;
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function showScreen(screen) {
+    startScreen.classList.remove("active");
+    gameScreen.classList.remove("active");
+    resultScreen.classList.remove("active");
+    screen.classList.add("active");
+  }
+
+  startBtn.addEventListener("click", startGame);
+  againBtn.addEventListener("click", ()=>{
+    showScreen(startScreen);
+  });
+
+  function startGame() {
+    players = shuffle(characters);
+    winners = [];
+    currentGroups = [];
+    currentGroupIndex = 0;
+    pickCount = {};
+    locked = false;
+    document.getElementById("progress-dots").style.display = "flex";
+    showScreen(gameScreen);
+    startRound1();
+  }
+
+  function startRound1() {
+    roundTitle.textContent = "第一轮";
+    roundSubtitle.textContent = "4选2";
+    instruction.textContent = "请在每组中选择两张骁";
+    winners = [];
+    currentGroups = [];
+    let index = 0;
+    while (index + 4 <= players.length) {
+      currentGroups.push(players.slice(index, index + 4));
+      index += 4;
+    }
+    const remaining = players.slice(index);
+    if (remaining.length > 0) currentGroups.push(remaining);
+    currentGroupIndex = 0;
+    showCurrentGroup();
+  }
+
+  function startRound2() {
+    players = shuffle(winners);
+    winners = [];
+    currentGroups = [];
+    let index = 0;
+    while (index < players.length) {
+      currentGroups.push(players.slice(index, index + 3));
+      index += 3;
+    }
+    currentGroupIndex = 0;
+    roundTitle.textContent = "第二轮";
+    roundSubtitle.textContent = "3选2";
+    instruction.textContent = "请在每组中选择两张骁";
+    showCurrentGroup();
+  }
+
+  function startRound3() {
+    players = shuffle(winners);
+    winners = [];
+    currentGroups = [];
+    for (let i = 0; i + 4 <= players.length; i += 4) {
+      currentGroups.push(players.slice(i, i + 4));
+    }
+    currentGroupIndex = 0;
+    roundTitle.textContent = "第三轮";
+    roundSubtitle.textContent = "2对2";
+    instruction.textContent = "请在每组中选择两张骁";
+    showCurrentGroup();
+  }
+
+  function showCurrentGroup() {
+    groupContainer.innerHTML = "";
+    locked = false;
+    const group = currentGroups[currentGroupIndex];
+    if (!group || group.length === 0) { finishCurrentRound(); return; }
+    const size = group.length;
+    if (size === 4) groupContainer.className = "group-grid-4";
+    else if (size === 3) groupContainer.className = "group-grid-3";
+    else groupContainer.className = "group-grid-2v2";
+    group.forEach(ch => groupContainer.appendChild(createCard(ch)));
+    updateProgress();
+  }
+
+  function placeholderSrc(name) {
+    return "https://placehold.co/400x533/f0c8d4/c2185b?text=" + encodeURIComponent(name);
+  }
+
+  function createCard(ch) {
+    const card = document.createElement("div");
+    card.className = "character-card";
+    card.dataset.name = ch.name;
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.src = ch.img || placeholderSrc(ch.name);
+    img.alt = ch.name;
+    const name = document.createElement("div");
+    name.className = "character-name";
+    name.textContent = ch.name;
+    card.appendChild(img);
+    card.appendChild(name);
+    card.addEventListener("click", () => { if (!locked) handleSelection(card, ch); });
+    return card;
+  }
+
+  function createCompareCard(ch, callback) {
+    const card = document.createElement("div");
+    card.className = "compare-card";
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.src = ch.img || placeholderSrc(ch.name);
+    img.alt = ch.name;
+    const name = document.createElement("div");
+    name.className = "character-name";
+    name.textContent = ch.name;
+    card.appendChild(img);
+    card.appendChild(name);
+    card.addEventListener("click", ()=>{ if(!locked) callback(ch); });
+    return card;
+  }
+
+  function handleSelection(card, ch) {
+    const group = currentGroups[currentGroupIndex];
+    const required = group.length === 4 ? 2 : group.length === 3 ? 2 : 1;
+    if (card.classList.contains("selected")) {
+      card.classList.remove("selected");
+      const selected = [...groupContainer.querySelectorAll(".selected")];
+      if (selected.length < required) {
+        groupContainer.querySelectorAll(".character-card").forEach(c => c.classList.remove("eliminated"));
+      }
+      return;
+    }
+    const selected = [...groupContainer.querySelectorAll(".selected")];
+    if (selected.length >= required) return;
+    card.classList.add("selected");
+    const nowSelected = [...groupContainer.querySelectorAll(".selected")];
+    if (nowSelected.length === required) {
+      locked = true;
+      groupContainer.querySelectorAll(".character-card").forEach(other => {
+        if (!other.classList.contains("selected")) other.classList.add("eliminated");
+      });
+      setTimeout(() => {
+        const selectedChars = [];
+        nowSelected.forEach(sc => {
+          const n = sc.dataset.name;
+          const found = group.find(item => item.name === n);
+          if (found) selectedChars.push(found);
+        });
+        selectedChars.forEach(c => { pickCount[c.name] = (pickCount[c.name] || 0) + 1; });
+        winners.push(...selectedChars);
+        currentGroupIndex++;
+        if (currentGroupIndex < currentGroups.length) showCurrentGroup();
+        else finishCurrentRound();
+      }, 450);
+    }
+  }
+
+  function finishCurrentRound() {
+    if (roundTitle.textContent === "第一轮") startRound2();
+    else if (roundTitle.textContent === "第二轮") startRound3();
+    else if (roundTitle.textContent === "第三轮") {
+      finalCandidatePool = shuffle([...winners]);
+      const totalCandidate = finalCandidatePool.length;
+      needEliminateCount = totalCandidate - 9;
+
+      roundTitle.textContent = "终极淘汰赛";
+      document.getElementById("progress-dots").style.display = "none";
+
+      if(needEliminateCount <= 0){
+        showFinalResult(finalCandidatePool.slice(0,9));
+        return;
+      }
+      roundSubtitle.textContent = `需要淘汰 ${needEliminateCount} 人`;
+      instruction.textContent = "点击你更喜欢的角色，败者直接淘汰";
+      nextPkMatch();
+    }
+  }
+
+  function nextPkMatch(){
+    groupContainer.innerHTML = "";
+    groupContainer.className = "group-compare";
+    locked = false;
+    if(needEliminateCount <=0){
+      showFinalResult(finalCandidatePool.slice(0,9));
+      return;
+    }
+    const a = finalCandidatePool.shift();
+    const b = finalCandidatePool.shift();
+    const cardA = createCompareCard(a,(winCh)=>handlePkWin(winCh,a,b));
+    const cardB = createCompareCard(b,(winCh)=>handlePkWin(winCh,a,b));
+    groupContainer.appendChild(cardA);
+    groupContainer.appendChild(cardB);
+  }
+
+  function handlePkWin(winner, a, b){
+    locked = true;
+    pickCount[winner.name] = (pickCount[winner.name]||0)+1;
+    const cards = groupContainer.querySelectorAll(".compare-card");
+    for(let c of cards){
+      const nm = c.querySelector(".character-name").textContent;
+      if(nm === winner.name) c.classList.add("selected");
+      else c.classList.add("eliminated");
+    }
+    setTimeout(()=>{
+      finalCandidatePool.push(winner);
+      needEliminateCount -=1;
+      roundSubtitle.textContent = `还需淘汰 ${needEliminateCount} 人`;
+      nextPkMatch();
+    },400);
+  }
+
+  function showFinalResult(top9Raw) {
+    showScreen(resultScreen);
+    resultGrid.innerHTML = "";
+    const sorted = [...top9Raw].sort((a,b)=>{
+      return (pickCount[b.name]||0) - (pickCount[a.name]||0);
+    });
+    sorted.forEach((ch, i) => {
+      const card = document.createElement("div");
+      card.className = "result-card";
+      const img = document.createElement("img");
+      img.src = ch.img || placeholderSrc(ch.name);
+      img.alt = ch.name;
+      const rank = document.createElement("div");
+      rank.className = "result-rank";
+      rank.textContent = i + 1;
+      const name = document.createElement("div");
+      name.className = "result-name";
+      name.textContent = ch.name;
+      const count = document.createElement("div");
+      count.className = "result-count";
+      count.textContent = (pickCount[ch.name] || 0) + "次";
+      card.appendChild(img);
+      card.appendChild(rank);
+      card.appendChild(count);
+      card.appendChild(name);
+      resultGrid.appendChild(card);
+    });
+  }
+
+  function updateProgress() {
+    const dotsContainer = document.getElementById("progress-dots");
+    const total = currentGroups.length;
+    const current = currentGroupIndex;
+    dotsContainer.innerHTML = "";
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement("div");
+      dot.className = "dot";
+      if (i < current) dot.classList.add("done");
+      else if (i === current) dot.classList.add("current");
+      dotsContainer.appendChild(dot);
+    }
+  }
+  </script>
+</body>
+</html>
