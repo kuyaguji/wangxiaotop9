@@ -433,6 +433,7 @@
   }
 
   // 终极票选轮：不淘汰任何人，两两配对二选一累计票数
+  // 【方案A】终极PK获胜 +2票，奇数轮空也 +2票
   function startFinalRound() {
     finalPool = shuffle([...winners]);
     // 两两配对
@@ -440,10 +441,10 @@
     for (let i = 0; i + 1 < finalPool.length; i += 2) {
       finalMatches.push([finalPool[i], finalPool[i+1]]);
     }
-    // 奇数最后1人直接+1票（轮空）
+    // 奇数最后1人轮空，直接+2票
     if (finalPool.length % 2 === 1) {
       const last = finalPool[finalPool.length - 1];
-      pickCount[last.name] = (pickCount[last.name] || 0) + 1;
+      pickCount[last.name] = (pickCount[last.name] || 0) + 2;
     }
     finalMatchIndex = 0;
     roundTitle.textContent = "终极票选";
@@ -458,9 +459,17 @@
     groupContainer.className = "group-compare";
     locked = false;
     if (finalMatchIndex >= finalMatches.length) {
-      // 打完一轮配对，按总票数降序取前9
-      const sorted = [...finalPool].sort((a,b)=> (pickCount[b.name]||0) - (pickCount[a.name]||0));
-      showFinalResult(sorted.slice(0,9));
+      // 全部候选按票数降序排列
+      const fullSorted = [...finalPool].sort((a,b)=> (pickCount[b.name]||0) - (pickCount[a.name]||0));
+      // 取出票数前9名
+      let top9 = fullSorted.slice(0,9);
+      // 前5名强制严格按票数从高到低
+      const top5 = top9.slice(0,5).sort((a,b)=> (pickCount[b.name]||0) - (pickCount[a.name]||0));
+      // 6~9名保留原顺序，允许平票，不重新排序
+      const rest4 = top9.slice(5);
+      // 合并结果
+      top9 = [...top5, ...rest4];
+      showFinalResult(top9);
       return;
     }
     const [a, b] = finalMatches[finalMatchIndex];
@@ -472,7 +481,8 @@
 
   function handleFinalPick(winner) {
     locked = true;
-    pickCount[winner.name] = (pickCount[winner.name]||0) + 1;
+    // 【方案A】终极PK获胜 +2票
+    pickCount[winner.name] = (pickCount[winner.name]||0) + 2;
     const cards = groupContainer.querySelectorAll(".compare-card");
     cards.forEach(c=>{
       if (c.querySelector(".character-name").textContent === winner.name) c.classList.add("selected");
@@ -487,10 +497,7 @@
   function showFinalResult(top9Raw) {
     showScreen(resultScreen);
     resultGrid.innerHTML = "";
-    const sorted = [...top9Raw].sort((a,b)=>{
-      return (pickCount[b.name]||0) - (pickCount[a.name]||0);
-    });
-    sorted.forEach((ch, i) => {
+    top9Raw.forEach((ch, i) => {
       const card = document.createElement("div");
       card.className = "result-card";
       const img = document.createElement("img");
