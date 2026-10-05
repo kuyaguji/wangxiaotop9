@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -8,167 +9,485 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       width: 100%; min-height: 100%;
-      background: #fff0f3; color: #c2185b;
+      background: #F7F3EC;
+      color: #4F3A2A;
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif;
     }
     body { min-height: 100vh; }
     .screen { display: none; width: 100%; min-height: 100vh; }
     .screen.active { display: flex; }
-    /* 首页 */
-    #start-screen { align-items: center; justify-content: center; text-align: center; }
-    .start-content { width: 100%; padding: 30px; }
-    .title-prefix { font-size: clamp(42px,12vw,76px); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 4px; }
-    .title-cn { font-size: clamp(28px,8vw,48px); font-weight: 700; letter-spacing: 0.08em; }
-    .title-jp { margin-top: 8px; font-size: clamp(20px,5vw,30px); letter-spacing: 0.12em; font-weight: 400; }
-    #start-btn, #again-btn {
-      margin-top: 55px; padding: 14px 42px;
-      border: 2px solid #c2185b; background: #fff; color: #c2185b;
-      font-size: 15px; font-weight: 800; letter-spacing: 0.18em;
-      cursor: pointer; border-radius: 999px; transition: all 0.2s ease;
+
+    /* 顶部小游戏标题栏 */
+    .game-bar {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    #start-btn:hover, #again-btn:hover { background: #c2185b; color: #fff; }
-    #start-btn:active, #again-btn:active { opacity: 0.8; }
+    .game-logo {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      color: #3E2C1F;
+    }
+    .game-tag {
+      font-size: 11px;
+      color: #7A6555;
+      background: #EDE6DA;
+      border: 1px solid #E7DDCB;
+      border-radius: 999px;
+      padding: 4px 10px;
+      letter-spacing: 0.12em;
+    }
+
+    /* 首页：极简封面 */
+    #start-screen {
+      align-items: center;
+      justify-content: center;
+      padding: 24px 18px;
+    }
+    .start-content {
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+    .cover-card {
+      background: #FBF8F2;
+      border: 1px solid #EFE6D4;
+      border-radius: 28px;
+      padding: 48px 22px;
+      box-shadow: 0 18px 40px rgba(120, 91, 64, 0.12);
+    }
+    .cover-title {
+      font-size: clamp(56px, 14vw, 84px);
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      color: #3E2C1F;
+      line-height: 1.02;
+    }
+    .cover-sub {
+      font-size: clamp(28px, 7vw, 42px);
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      color: #4F3A2A;
+      margin-top: 4px;
+    }
+    .cover-mode {
+      font-size: 14px;
+      letter-spacing: 0.22em;
+      color: #7A6555;
+      margin-top: 10px;
+    }
+    .cover-divider {
+      width: 40px;
+      height: 1px;
+      background: #D8C9B5;
+      margin: 30px auto 0;
+    }
+    #start-btn {
+      margin-top: 30px;
+      padding: 14px 46px;
+      border: none;
+      background: #6F543E;
+      color: #F7F3EC;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(111, 84, 62, 0.28);
+      transition: all 0.2s ease;
+    }
+    #start-btn:hover { background: #4F3A2A; }
+    #start-btn:active { opacity: 0.85; }
+
     /* 游戏页 */
-    #game-screen { flex-direction: column; align-items: center; padding: 24px 14px 40px; }
-    .game-header { width: 100%; max-width: 900px; text-align: center; }
-    #round-title { font-size: 25px; font-weight: 700; letter-spacing: 0.08em; }
-    #round-subtitle { margin-top: 7px; min-height: 20px; font-size: 13px; color: #e06e9a; }
-    #progress-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
-    #progress-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: #f0c8d4; transition: all 0.25s ease; }
-    #progress-dots .dot.done { background: #c2185b; }
-    #progress-dots .dot.current { background: #c2185b; transform: scale(1.4); }
-    #instruction { margin-top: 25px; margin-bottom: 20px; font-size: 15px; font-weight: 600; text-align: center; }
-    #group-container { width: 100%; max-width: 1000px; display: grid; gap: 14px; align-items: stretch; }
-    .group-grid-4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .group-grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
-    .group-grid-2v2 { grid-template-columns: repeat(4, minmax(0,1fr)); }
-    /* 终极二选一大卡片 */
-    .group-compare { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; padding: 10px 0; }
+    #game-screen {
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 40px;
+    }
+    .stage-card {
+      width: 100%;
+      max-width: 480px;
+      background: #FBF8F2;
+      border: 1px solid #EFE6D4;
+      border-radius: 24px;
+      padding: 18px 16px 14px;
+      margin: 10px 14px 0;
+      box-shadow: 0 10px 24px rgba(120, 91, 64, 0.08);
+    }
+    .stage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .stage-name {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      color: #3E2C1F;
+    }
+    .stage-mode {
+      font-size: 11px;
+      color: #4F3A2A;
+      background: #EDE6DA;
+      border: 1px solid #E7DDCB;
+      border-radius: 999px;
+      padding: 4px 10px;
+      letter-spacing: 0.12em;
+    }
+    .progress-track {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .progress-line {
+      flex: 1;
+      height: 4px;
+      background: #EDE6DA;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #C9A98A, #6F543E);
+      border-radius: 999px;
+      transition: width 0.3s ease;
+    }
+    .progress-text {
+      font-size: 11px;
+      color: #7A6555;
+      letter-spacing: 0.1em;
+    }
+    #instruction {
+      margin: 16px 14px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      color: #4F3A2A;
+      background: #F7F3EC;
+      border: 1px solid #E7DDCB;
+      border-radius: 16px;
+      padding: 11px 14px;
+      max-width: 480px;
+      width: calc(100% - 28px);
+    }
+    #group-container {
+      width: 100%;
+      max-width: 480px;
+      display: grid;
+      gap: 12px;
+      align-items: stretch;
+      padding: 0 14px;
+    }
+    .group-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .group-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .group-grid-2v2 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    /* 终极二选一大卡片：直角图片框 */
+    .group-compare {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      padding: 8px 14px;
+    }
     .compare-card {
-      position: relative; overflow: hidden; background: #ddd; cursor: pointer;
-      aspect-ratio: 3/4; border-radius: 0; user-select: none;
+      position: relative;
+      overflow: hidden;
+      background: #EDE6DA;
+      cursor: pointer;
+      aspect-ratio: 3/4;
+      border-radius: 0;
+      border: 1px solid #E7DDCB;
+      user-select: none;
       -webkit-tap-highlight-color: transparent;
       transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+      box-shadow: 0 10px 24px rgba(120, 91, 64, 0.1);
     }
-    .compare-card img { width: 100%; height: 100%; display: block; object-fit: cover; border: 3px solid #f4c6d4; border-radius: 0; }
+    .compare-card img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      border: 3px solid #D8C9B5;
+      border-radius: 0;
+    }
     .compare-card .character-name {
-      position: absolute; left: 0; right: 0; bottom: 0;
-      padding: 3px 4px 5px; color: #fff; font-size: 20px; font-weight: 900;
-      letter-spacing: 1px; text-align: center;
-      background: rgba(244,198,212,0.45); line-height: 1.15;
-      display: flex; align-items: center; justify-content: center; min-height: 26px;
-    }
-    .compare-card.selected { transform: scale(1.02); }
-    .compare-card.eliminated { opacity: 0.18; filter: grayscale(1); transform: scale(0.97); }
-    /* 普通游戏卡片 */
-    .character-card {
-      position: relative; overflow: hidden; background: #ddd; cursor: pointer;
-      aspect-ratio: 3/4; user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
-    }
-    .character-card img { width: 100%; height: 100%; display: block; object-fit: cover; border: 3px solid #f4c6d4; border-radius: 0; }
-    .character-name {
-      position: absolute; left: 0; right: 0; bottom: 0;
-      padding: 3px 4px 5px; color: #fff; font-size: 18px; font-weight: 900;
-      letter-spacing: 1px; text-align: center;
-      background: rgba(244,198,212,0.45); line-height: 1.15;
-      display: flex; align-items: center; justify-content: center; min-height: 24px;
-    }
-    .character-card.selected { transform: scale(1.02); }
-    .character-card.eliminated { opacity: 0.18; filter: grayscale(1); transform: scale(0.97); }
-    /* 结果页 */
-    #result-screen { flex-direction: column; align-items: center; padding: 30px 14px 50px; }
-    .result-title { text-align: center; }
-    .result-prefix { font-size: 34px; font-weight: 700; letter-spacing: 0.08em; margin-bottom: 3px; }
-    .result-cn { font-size: 24px; font-weight: 700; letter-spacing: 0.08em; }
-    .result-jp { margin-top: 5px; font-size: 17px; letter-spacing: 0.12em; }
-    #result-grid { width: 100%; max-width: 900px; margin-top: 35px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
-    .result-card { position: relative; overflow: hidden; aspect-ratio: 3/4; background: #ddd; }
-    .result-card img { width: 100%; height: 100%; display: block; object-fit: cover; border: 3px solid #f4c6d4; border-radius: 0; }
-    .result-rank {
       position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 2;
-      width: 22px;
-      height: 22px;
-      background-color: #f4c6d4;
-      border-right: 3px solid #f4c6d4;
-      border-bottom: 3px solid #f4c6d4;
+      left: 8px;
+      right: 8px;
+      bottom: 10px;
+      padding: 6px 8px;
+      color: #4F3A2A;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-align: center;
+      background: rgba(251, 248, 242, 0.9);
+      border: 1px solid #E7DDCB;
+      border-radius: 6px;
+      line-height: 1.2;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
+    }
+    .compare-card.selected { transform: scale(1.02); }
+    .compare-card.eliminated {
+      opacity: 0.18;
+      filter: grayscale(1);
+      transform: scale(0.97);
+    }
+
+    /* 普通游戏卡片：直角图片框 */
+    .character-card {
+      position: relative;
+      overflow: hidden;
+      background: #EDE6DA;
+      cursor: pointer;
+      aspect-ratio: 3/4;
+      border-radius: 0;
+      border: 1px solid #E7DDCB;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+      box-shadow: 0 10px 24px rgba(120, 91, 64, 0.1);
+    }
+    .character-card img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      border: 3px solid #D8C9B5;
+      border-radius: 0;
+    }
+    .character-name {
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 10px;
+      padding: 6px 8px;
+      color: #4F3A2A;
+      font-size: 12px;
       font-weight: 900;
-      color: #c2185b;
+      letter-spacing: 1px;
+      text-align: center;
+      background: rgba(251, 248, 242, 0.9);
+      border: 1px solid #E7DDCB;
+      border-radius: 6px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .character-card.selected { transform: scale(1.02); }
+    .character-card.eliminated {
+      opacity: 0.18;
+      filter: grayscale(1);
+      transform: scale(0.97);
+    }
+
+    /* 结果页 */
+    #result-screen {
+      flex-direction: column;
+      align-items: center;
+      padding-top: 20px;
+      padding-bottom: 50px;
+    }
+    .result-title {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .result-prefix {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      margin-bottom: 3px;
+      color: #3E2C1F;
+    }
+    .result-cn {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #3E2C1F;
+    }
+    .result-jp {
+      margin-top: 5px;
+      font-size: 14px;
+      letter-spacing: 0.18em;
+      color: #7A6555;
+    }
+    #result-grid {
+      width: 100%;
+      max-width: 480px;
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 14px;
+    }
+    .result-card {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      background: #EDE6DA;
+      border-radius: 0;
+      border: 1px solid #E7DDCB;
+      box-shadow: 0 10px 24px rgba(120, 91, 64, 0.1);
+    }
+    .result-card img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      border: 3px solid #D8C9B5;
+      border-radius: 0;
+    }
+    .result-rank-wrap {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+      width: 24px;
+      height: 24px;
+      border-radius: 0;
+      background: rgba(251, 248, 242, 0.92);
+      border: 1px solid #E7DDCB;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .result-rank-inner {
+      font-size: 12px;
+      font-weight: 900;
+      color: #4F3A2A;
     }
     .result-name {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 3px 4px 5px; color: #fff; text-align: center;
-      font-size: 18px; font-weight: 900; letter-spacing: 1px;
-      background: rgba(244,198,212,0.45); line-height: 1.15;
-      display: flex; align-items: center; justify-content: center; min-height: 24px;
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: 10px;
+      padding: 6px 8px;
+      color: #4F3A2A;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: rgba(251, 248, 242, 0.9);
+      border: 1px solid #E7DDCB;
+      border-radius: 6px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .result-count {
-      position: absolute; top: 8px; right: 9px; z-index: 2;
-      font-size: 11px; color: #fff; text-shadow: 0 1px 3px rgba(194,24,91,0.6);
+    #again-btn {
+      margin-top: 30px;
+      padding: 14px 46px;
+      border: none;
+      background: #6F543E;
+      color: #F7F3EC;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
+      cursor: pointer;
+      border-radius: 999px;
+      box-shadow: 0 10px 24px rgba(111, 84, 62, 0.28);
+      transition: all 0.2s ease;
     }
+    #again-btn:hover { background: #4F3A2A; }
+    #again-btn:active { opacity: 0.85; }
+
     /* 手机适配 */
     @media (max-width: 600px) {
-      #game-screen { padding: 18px 10px 30px; }
+      .game-bar { padding: 12px 14px 8px; }
+      #start-screen { padding-top: 14px; }
+      .cover-card { padding: 36px 16px; }
+      #game-screen { padding-bottom: 30px; }
+      .stage-card { padding: 14px 12px 12px; }
       #group-container { gap: 8px; }
-      .character-name { font-size: 12px; padding: 2px 3px 4px; min-height: 18px; }
-      #instruction { margin-top: 18px; margin-bottom: 14px; }
+      .character-name { font-size: 11px; padding: 5px 7px; }
+      #instruction { margin: 14px 12px 10px; font-size: 12px; }
       #result-grid { gap: 7px; }
-      .result-rank {
-        width: 18px;
-        height: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        top: 0;
-        left: 0;
-        border-right:3px solid #f4c6d4;
-        border-bottom:3px solid #f4c6d4;
+      .result-rank-wrap {
+        width: 20px;
+        height: 20px;
+        top: 8px;
+        left: 8px;
       }
-      .result-name { font-size: 11px; padding: 2px 3px 4px; min-height: 16px; }
+      .result-rank-inner { font-size: 11px; }
+      .result-name { font-size: 11px; padding: 5px 7px; }
     }
+
     .site-watermark {
-      position: fixed; left: 0; right: 0; bottom: 10px; text-align: center;
-      font-size: 15px; color: #c2185b; opacity: 0.55; letter-spacing: 2px;
-      pointer-events: none; user-select: none; z-index: 9999;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 10px;
+      text-align: center;
+      font-size: 12px;
+      color: #5F4A38;
+      opacity: 0.55;
+      letter-spacing: 2px;
+      pointer-events: none;
+      user-select: none;
+      z-index: 9999;
     }
   </style>
 </head>
 <body>
   <section id="start-screen" class="screen active">
     <div class="start-content">
-      <div class="title-prefix">王骁</div>
-      <div class="title-cn">颜TOP</div>
-      <div class="title-jp">9选</div>
-      <button id="start-btn">开始</button>
+      <div class="cover-card">
+        <div class="cover-title">王骁</div>
+        <div class="cover-sub">颜TOP</div>
+        <div class="cover-mode">9选</div>
+        <div class="cover-divider"></div>
+        <button id="start-btn">开始</button>
+      </div>
     </div>
   </section>
+
   <section id="game-screen" class="screen">
-    <div class="game-header">
-      <div id="round-title">ROUND 1</div>
-      <div id="round-subtitle"></div>
-      <div id="progress-dots"></div>
+    <div class="game-bar">
+      <div class="game-logo">王骁颜TOP</div>
+      <div class="game-tag" id="round-tag">第一轮</div>
     </div>
-    <div id="instruction"></div>
+    <div class="stage-card">
+      <div class="stage-header">
+        <div class="stage-name" id="round-title">第一轮</div>
+        <div class="stage-mode" id="round-subtitle">4选2</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-line">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-text">1 / 1</div>
+      </div>
+    </div>
+    <div id="instruction">请在每组中选择两张骁</div>
     <div id="group-container"></div>
   </section>
+
   <section id="result-screen" class="screen">
     <div class="result-title">
+      <div class="game-bar">
+        <div class="game-logo">王骁颜TOP</div>
+        <div class="game-tag">排行榜</div>
+      </div>
       <div class="result-prefix">王骁</div>
       <div class="result-cn">颜TOP</div>
-      <div class="result-jp">9选</div>
+      <div class="result-jp">TOP 9 排行榜</div>
     </div>
     <div id="result-grid"></div>
-    <button id="again-btn">再来一次</button>
+    <button id="again-btn">再 来 一 次</button>
   </section>
+
   <div class="site-watermark">枯崕</div>
 
   <script>
@@ -267,9 +586,12 @@
   const againBtn       = document.getElementById("again-btn");
   const roundTitle     = document.getElementById("round-title");
   const roundSubtitle  = document.getElementById("round-subtitle");
+  const roundTag       = document.getElementById("round-tag");
   const instruction    = document.getElementById("instruction");
   const groupContainer = document.getElementById("group-container");
   const resultGrid     = document.getElementById("result-grid");
+  const progressFill   = document.getElementById("progress-fill");
+  const progressText   = document.getElementById("progress-text");
 
   let players = [];
   let winners = [];
@@ -300,7 +622,7 @@
   }
 
   startBtn.addEventListener("click", startGame);
-  againBtn.addEventListener("click", ()=>{
+  againBtn.addEventListener("click", () => {
     showScreen(startScreen);
   });
 
@@ -311,14 +633,22 @@
     currentGroupIndex = 0;
     pickCount = {};
     locked = false;
-    document.getElementById("progress-dots").style.display = "flex";
     showScreen(gameScreen);
     startRound1();
+  }
+
+  function updateGameProgress() {
+    const total = currentGroups.length;
+    const current = currentGroupIndex + 1;
+    const percent = total === 0 ? 0 : Math.round((current / total) * 100);
+    progressFill.style.width = percent + "%";
+    progressText.textContent = current + " / " + total;
   }
 
   function startRound1() {
     roundTitle.textContent = "第一轮";
     roundSubtitle.textContent = "4选2";
+    roundTag.textContent = "第一轮";
     instruction.textContent = "请在每组中选择两张骁";
     winners = [];
     currentGroups = [];
@@ -345,6 +675,7 @@
     currentGroupIndex = 0;
     roundTitle.textContent = "第二轮";
     roundSubtitle.textContent = "3选2";
+    roundTag.textContent = "第二轮";
     instruction.textContent = "请在每组中选择两张骁";
     showCurrentGroup();
   }
@@ -359,6 +690,7 @@
     currentGroupIndex = 0;
     roundTitle.textContent = "第三轮";
     roundSubtitle.textContent = "4选2";
+    roundTag.textContent = "第三轮";
     instruction.textContent = "请在每组中选择两张骁";
     showCurrentGroup();
   }
@@ -373,7 +705,7 @@
     else if (size === 3) groupContainer.className = "group-grid-3";
     else groupContainer.className = "group-grid-2v2";
     group.forEach(ch => groupContainer.appendChild(createCard(ch)));
-    updateProgress();
+    updateGameProgress();
   }
 
   function placeholderSrc(name) {
@@ -409,7 +741,7 @@
     name.textContent = ch.name;
     card.appendChild(img);
     card.appendChild(name);
-    card.addEventListener("click", ()=>{ if(!locked) callback(ch); });
+    card.addEventListener("click", () => { if (!locked) callback(ch); });
     return card;
   }
 
@@ -461,7 +793,7 @@
     // 两两配对
     finalMatches = [];
     for (let i = 0; i + 1 < finalPool.length; i += 2) {
-      finalMatches.push([finalPool[i], finalPool[i+1]]);
+      finalMatches.push([finalPool[i], finalPool[i + 1]]);
     }
     // 奇数最后1人轮空，直接+2票
     if (finalPool.length % 2 === 1) {
@@ -471,8 +803,9 @@
     finalMatchIndex = 0;
     roundTitle.textContent = "第四轮";
     roundSubtitle.textContent = "2选1";
+    roundTag.textContent = "终局";
     instruction.textContent = "激动人心的终极时刻";
-    document.getElementById("progress-dots").style.display = "none";
+    document.getElementById("progress-fill").parentNode.parentNode.style.display = "none";
     showFinalMatch();
   }
 
@@ -482,11 +815,11 @@
     locked = false;
     if (finalMatchIndex >= finalMatches.length) {
       // 全部候选按票数降序排列
-      const fullSorted = [...finalPool].sort((a,b)=> (pickCount[b.name]||0) - (pickCount[a.name]||0));
+      const fullSorted = [...finalPool].sort((a, b) => (pickCount[b.name] || 0) - (pickCount[a.name] || 0));
       // 取出票数前9名
-      let top9 = fullSorted.slice(0,9);
+      let top9 = fullSorted.slice(0, 9);
       // 前5名强制严格按票数从高到低
-      const top5 = top9.slice(0,5).sort((a,b)=> (pickCount[b.name]||0) - (pickCount[a.name]||0));
+      const top5 = top9.slice(0, 5).sort((a, b) => (pickCount[b.name] || 0) - (pickCount[a.name] || 0));
       // 6~9名保留原顺序，允许平票，不重新排序
       const rest4 = top9.slice(5);
       // 合并结果
@@ -495,21 +828,21 @@
       return;
     }
     const [a, b] = finalMatches[finalMatchIndex];
-    const cardA = createCompareCard(a, (ch)=>handleFinalPick(ch));
-    const cardB = createCompareCard(b, (ch)=>handleFinalPick(ch));
+    const cardA = createCompareCard(a, (ch) => handleFinalPick(ch));
+    const cardB = createCompareCard(b, (ch) => handleFinalPick(ch));
     groupContainer.appendChild(cardA);
     groupContainer.appendChild(cardB);
   }
 
   function handleFinalPick(winner) {
     locked = true;
-    pickCount[winner.name] = (pickCount[winner.name]||0) + 2;
+    pickCount[winner.name] = (pickCount[winner.name] || 0) + 2;
     const cards = groupContainer.querySelectorAll(".compare-card");
-    cards.forEach(c=>{
+    cards.forEach(c => {
       if (c.querySelector(".character-name").textContent === winner.name) c.classList.add("selected");
       else c.classList.add("eliminated");
     });
-    setTimeout(()=>{
+    setTimeout(() => {
       finalMatchIndex++;
       showFinalMatch();
     }, 400);
@@ -521,17 +854,25 @@
     top9Raw.forEach((ch, i) => {
       const card = document.createElement("div");
       card.className = "result-card";
+
       const img = document.createElement("img");
       img.src = ch.img || placeholderSrc(ch.name);
       img.alt = ch.name;
-      const rank = document.createElement("div");
-      rank.className = "result-rank";
-      rank.textContent = i + 1;
+
+      // 排名数字使用直角标签
+      const rankWrap = document.createElement("div");
+      rankWrap.className = "result-rank-wrap";
+      const rankInner = document.createElement("div");
+      rankInner.className = "result-rank-inner";
+      rankInner.textContent = i + 1;
+      rankWrap.appendChild(rankInner);
+
       const name = document.createElement("div");
       name.className = "result-name";
       name.textContent = ch.name;
+
       card.appendChild(img);
-      card.appendChild(rank);
+      card.appendChild(rankWrap);
       card.appendChild(name);
       resultGrid.appendChild(card);
     });
