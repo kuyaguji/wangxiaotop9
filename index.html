@@ -87,9 +87,21 @@
     .result-card { position: relative; overflow: hidden; aspect-ratio: 3/4; background: #ddd; }
     .result-card img { width: 100%; height: 100%; display: block; object-fit: cover; border: 3px solid #f4c6d4; border-radius: 0; }
     .result-rank {
-      position: absolute; top: 6px; left: 6px; z-index: 2;
-      width: 22px; height: 22px; line-height: 22px; text-align: center;
-      font-size: 13px; font-weight: 900; color: #c2185b; background: #ffd9e3; border-radius: 4px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      width: 22px;
+      height: 22px;
+      background-color: #f4c6d4;
+      border-right: 3px solid #f4c6d4;
+      border-bottom: 3px solid #f4c6d4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      color: #c2185b;
     }
     .result-name {
       position: absolute; bottom: 0; left: 0; right: 0;
@@ -109,7 +121,18 @@
       .character-name { font-size: 12px; padding: 2px 3px 4px; min-height: 18px; }
       #instruction { margin-top: 18px; margin-bottom: 14px; }
       #result-grid { gap: 7px; }
-      .result-rank { width: 18px; height: 18px; line-height: 18px; font-size: 11px; top: 4px; left: 4px; }
+      .result-rank {
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        top: 0;
+        left: 0;
+        border-right:3px solid #f4c6d4;
+        border-bottom:3px solid #f4c6d4;
+      }
       .result-name { font-size: 11px; padding: 2px 3px 4px; min-height: 16px; }
     }
     .site-watermark {
@@ -433,7 +456,6 @@
   }
 
   // 终极票选轮：不淘汰任何人，两两配对二选一累计票数
-  // 【方案A】终极PK获胜 +2票，奇数轮空也 +2票
   function startFinalRound() {
     finalPool = shuffle([...winners]);
     // 两两配对
@@ -447,9 +469,9 @@
       pickCount[last.name] = (pickCount[last.name] || 0) + 2;
     }
     finalMatchIndex = 0;
-    roundTitle.textContent = "终极票选";
-    roundSubtitle.textContent = "点击更喜欢的角色，累计票数";
-    instruction.textContent = "每组二选一，最终按票数排序选出TOP9";
+    roundTitle.textContent = "第四轮";
+    roundSubtitle.textContent = "2选1";
+    instruction.textContent = "激动人心的终极时刻";
     document.getElementById("progress-dots").style.display = "none";
     showFinalMatch();
   }
@@ -481,7 +503,6 @@
 
   function handleFinalPick(winner) {
     locked = true;
-    // 【方案A】终极PK获胜 +2票
     pickCount[winner.name] = (pickCount[winner.name]||0) + 2;
     const cards = groupContainer.querySelectorAll(".compare-card");
     cards.forEach(c=>{
@@ -509,12 +530,8 @@
       const name = document.createElement("div");
       name.className = "result-name";
       name.textContent = ch.name;
-      const count = document.createElement("div");
-      count.className = "result-count";
-      count.textContent = (pickCount[ch.name] || 0) + "次";
       card.appendChild(img);
       card.appendChild(rank);
-      card.appendChild(count);
       card.appendChild(name);
       resultGrid.appendChild(card);
     });
